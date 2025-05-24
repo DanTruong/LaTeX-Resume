@@ -21,6 +21,13 @@ jobs:
           docker build -t resume-builder .
           docker run --rm -v ${{ github.workspace }}:/data resume-builder
 
+      - name: Create git tag
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git tag ${{ github.event.inputs.release_tag }}
+          git push origin ${{ github.event.inputs.release_tag }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
