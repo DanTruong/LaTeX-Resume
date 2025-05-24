@@ -2,9 +2,9 @@ name: Build Resume
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    tags:
+      - 'v*'  
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,18 +14,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build with Docker
+      - name: Build Docker image and generate resume
         run: |
           docker build -t resume-builder .
           docker run --rm -v ${{ github.workspace }}:/data resume-builder
 
-      - name: Upload generated files
-        uses: actions/upload-artifact@v4
+      - name: Upload Resume to Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: resume-outputs
-          path: |
+          files: |
             Resume.pdf
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
