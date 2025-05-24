@@ -1,10 +1,12 @@
 name: Build Resume
 
 on:
-  push:
-    tags:
-      - 'v*'  
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag name (e.g., v1.0.1)'
+        required: true
+        default: 'v1.0.0'
 
 jobs:
   build:
@@ -19,12 +21,13 @@ jobs:
           docker build -t resume-builder .
           docker run --rm -v ${{ github.workspace }}:/data resume-builder
 
-      - name: Upload Resume to Release
+      - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          name: Release ${{ github.event.inputs.release_tag }}
           files: |
             Resume.pdf
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
